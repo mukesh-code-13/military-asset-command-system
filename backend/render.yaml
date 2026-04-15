@@ -1,0 +1,41 @@
+services:
+  - type: web
+    name: military-asset-backend
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: MONGODB_URI
+        scope: service
+        sync: false
+        # Replace with your MongoDB Atlas connection string
+        value: "${MONGODB_URI}"
+      - key: JWT_SECRET
+        scope: service
+        sync: false
+        # Use a strong random string
+        value: "${JWT_SECRET}"
+      - key: CORS_ORIGIN
+        value: https://military-asset-frontend.vercel.app
+    healthCheckPath: /health
+    healthCheckInterval: 15
+    serviceIdleDurationMinutes: 15
+    maxInstanceCount: 3
+    minInstanceCount: 1
+    
+  - type: pserv
+    name: military-assets-db
+    runtime: mongodb
+    plan: free
+    ipAllowList:
+      - source: 0.0.0.0/0
+        description: Allow all resources from this service
+    disk:
+      name: mongo
+      mountPath: /data
+      sizeGB: 5
